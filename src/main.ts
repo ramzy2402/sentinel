@@ -1,4 +1,4 @@
-import { invoke } from "@tauri-apps/api/core";
+import { invoke } from "@tauri-apps/api";
 
 let greetInputEl: HTMLInputElement | null;
 let greetMsgEl: HTMLElement | null;
@@ -19,4 +19,10 @@ window.addEventListener("DOMContentLoaded", () => {
     e.preventDefault();
     greet();
   });
+});
+
+document.getElementById("test-btn")?.addEventListener("click", async () => {
+  const result = await invoke<string>("call_python", { message: "Hello Python" });
+  const respEl = document.getElementById("response");
+  if (respEl) respEl.textContent = result;
 });
