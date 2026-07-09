@@ -1,0 +1,11 @@
+{
+  "hardware": {
+    "vram_gb": 8.0,
+    "ram_gb": 15.7,
+    "cpu_cores": 8,
+    "gpu_detected": true
+  },
+  "llm_model": "qwen2.5:3b",
+  "embedding_model": "nomic-embed-text",
+  "screenshot_interval_seconds": 2
+}

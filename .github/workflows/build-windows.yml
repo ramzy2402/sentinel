@@ -1,0 +1,47 @@
+name: Build Sentinel (Windows)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      - name: Installer Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Installer Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Installer Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Build du sidecar Python
+        shell: pwsh
+        run: |
+          cd backend
+          python -m venv venv
+          ./venv/Scripts/pip install -r requirements.txt
+          ./venv/Scripts/pip install pyinstaller
+          ./venv/Scripts/pyinstaller --onefile --noconsole --name sentinel-backend main.py
+          New-Item -ItemType Directory -Force -Path ../src-tauri/binaries
+          Copy-Item dist/sentinel-backend.exe "../src-tauri/binaries/sentinel-backend-x86_64-pc-windows-msvc.exe"
+
+      - name: Installer les dépendances frontend
+        run: npm install
+
+      - name: Build de l'application Tauri
+        run: npm run tauri build
+
+      - name: Récupérer l'installeur
+        uses: actions/upload-artifact@v4
+        with:
+          name: sentinel-installer-windows
+          path: src-tauri/target/release/bundle/msi/*.msi
