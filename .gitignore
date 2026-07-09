@@ -1,4 +1,9 @@
-# Logs
+# Logs/src-tauri/target
+/src-tauri/binaries/*.exe
+/build
+/dist
+/node_modules
+/.venv
 logs
 *.log
 npm-debug.log*
