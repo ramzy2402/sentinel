@@ -1,11 +1,11 @@
-import { invoke } from "@tauri-apps/api";
+import { invoke } from "@tauri-apps/api/core";
 
+// --- Gestion du formulaire par défaut de Tauri ---
 let greetInputEl: HTMLInputElement | null;
 let greetMsgEl: HTMLElement | null;
 
 async function greet() {
   if (greetMsgEl && greetInputEl) {
-    // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
     greetMsgEl.textContent = await invoke("greet", {
       name: greetInputEl.value,
     });
@@ -19,10 +19,15 @@ window.addEventListener("DOMContentLoaded", () => {
     e.preventDefault();
     greet();
   });
-});
 
-document.getElementById("test-btn")?.addEventListener("click", async () => {
-  const result = await invoke<string>("call_python", { message: "Hello Python" });
-  const respEl = document.getElementById("response");
-  if (respEl) respEl.textContent = result;
+  // --- Ton nouveau bouton de test Python ---
+  document.getElementById("test-btn")?.addEventListener("click", async () => {
+    try {
+      const result = await invoke<string>("call_python", { message: "Hello Python" });
+      const respEl = document.getElementById("response");
+      if (respEl) respEl.textContent = result;
+    } catch (error) {
+      console.error("Erreur Python:", error);
+    }
+  });
 });
