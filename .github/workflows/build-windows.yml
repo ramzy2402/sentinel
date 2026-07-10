@@ -30,15 +30,20 @@ jobs:
           python -m venv venv
           ./venv/Scripts/pip install -r requirements.txt
           ./venv/Scripts/pip install pyinstaller
-          # On utilise --onedir pour une meilleure stabilité des dépendances
+          
+          # On garde --onedir
           ./venv/Scripts/pyinstaller --onedir --noconsole --name sentinel-backend main.py
           
-          # Nettoyage et préparation du dossier destination
-          Remove-Item -Path "../src-tauri/binaries/*" -Recurse -ErrorAction SilentlyContinue
+          # Création du dossier de destination
           New-Item -ItemType Directory -Force -Path ../src-tauri/binaries
           
-          # Copie de tout le contenu du dossier généré vers les binaires de Tauri
+          # Copie tout le contenu du dossier généré
           Copy-Item -Recurse -Path dist/sentinel-backend/* -Destination "../src-tauri/binaries/"
+          
+          # IMPORTANT : On doit s'assurer que le fichier attendu par Tauri existe bien
+          # Si Tauri attend 'sentinel-backend-x86_64-pc-windows-msvc.exe', 
+          # on renomme l'exécutable généré pour qu'il corresponde exactement :
+          Rename-Item -Path "../src-tauri/binaries/sentinel-backend.exe" -NewName "sentinel-backend-x86_64-pc-windows-msvc.exe"
 
       - name: Installer les dépendances frontend
         run: npm install
