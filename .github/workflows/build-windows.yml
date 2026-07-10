@@ -24,22 +24,36 @@ jobs:
           python-version: '3.11'
 
       - name: Build du sidecar Python
-        shell: pwsh
-        run: |
-          cd backend
-          python -m venv venv
-          ./venv/Scripts/pip install -r requirements.txt
-          ./venv/Scripts/pip install pyinstaller
-          
-          # Vérification de sécurité : confirme que psutil est bien installé dans ce venv précis
-          ./venv/Scripts/python -c "import psutil; print('psutil OK, version', psutil.__version__)"
-          
-          # Appel explicite via le python du venv pour éviter toute confusion sur le PATH
-          ./venv/Scripts/python -m PyInstaller --onefile --noconsole --name sentinel-backend `
-            --collect-all psutil --collect-all mss --collect-all imagehash main.py
-          
-          New-Item -ItemType Directory -Force -Path ../src-tauri/binaries
-          Copy-Item dist/sentinel-backend.exe "../src-tauri/binaries/sentinel-backend-x86_64-pc-windows-msvc.exe"
+  shell: pwsh
+  run: |
+    $ErrorActionPreference = "Stop"
+    cd backend
+
+    if (-not (Test-Path "requirements.txt")) {
+      Write-Error "requirements.txt introuvable dans backend/ — arrêt du build."
+      exit 1
+    }
+
+    python -m venv venv
+
+    ./venv/Scripts/pip install -r requirements.txt
+    if ($LASTEXITCODE -ne 0) { Write-Error "pip install a échoué"; exit 1 }
+
+    ./venv/Scripts/pip install pyinstaller
+    if ($LASTEXITCODE -ne 0) { Write-Error "installation de pyinstaller a échoué"; exit 1 }
+
+    Write-Host "--- Paquets installés dans le venv ---"
+    ./venv/Scripts/pip list
+
+    ./venv/Scripts/python -c "import psutil; print('psutil OK, version', psutil.__version__)"
+    if ($LASTEXITCODE -ne 0) { Write-Error "psutil non importable dans ce venv — arrêt du build."; exit 1 }
+
+    ../venv/Scripts/python -m PyInstaller --onefile --noconsole --name sentinel-backend `
+  --collect-all psutil --collect-all mss --collect-all imagehash --collect-all pywin32 main.py
+    if ($LASTEXITCODE -ne 0) { Write-Error "PyInstaller a échoué"; exit 1 }
+
+    New-Item -ItemType Directory -Force -Path ../src-tauri/binaries
+    Copy-Item dist/sentinel-backend.exe "../src-tauri/binaries/sentinel-backend-x86_64-pc-windows-msvc.exe"
 
       - name: Récupérer le rapport PyInstaller (debug)
         if: always()

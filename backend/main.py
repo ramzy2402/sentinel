@@ -1,15 +1,21 @@
-print("BACKEND_READY")
 """
 Orchestrateur principal de Sentinel.
 """
 from backend.benchmark import run_benchmark, CONFIG_PATH
 from backend.vision.capture import ScreenWatcher, Frame
-from backend.vision.ocr_engine import EasyOCREngine
 from backend.state.status_store import write_status, is_panicked
 from backend.security.secure_logger import log_event
 
-# Initialisation du moteur OCR
-ocr_engine = EasyOCREngine()
+_ocr_engine = None
+
+
+def get_ocr_engine():
+    global _ocr_engine
+    if _ocr_engine is None:
+        from backend.vision.ocr_engine import EasyOCREngine
+        _ocr_engine = EasyOCREngine()
+    return _ocr_engine
+
 
 def safe_step(step_name: str, func, *args, **kwargs):
     try:
@@ -19,6 +25,7 @@ def safe_step(step_name: str, func, *args, **kwargs):
         write_status("erreur", detail=f"{step_name} a échoué, reprise automatique")
         return None
 
+
 def on_change(frame: Frame):
     if is_panicked():
         write_status("pause", detail="Bouton panique actif")
@@ -26,11 +33,12 @@ def on_change(frame: Frame):
 
     write_status("observation", detail=f"Analyse de : {frame.window_title}")
 
-    text = safe_step("ocr", ocr_engine.extract_text, frame.image)
+    text = safe_step("ocr", lambda: get_ocr_engine().extract_text(frame.image))
     if not text or not text.strip():
         return
 
     safe_step("log", log_event, f"Texte observé dans {frame.window_title}")
+
 
 def run_persistent_loop():
     write_status("veille", detail="Démarrage de Sentinel")
@@ -46,6 +54,7 @@ def run_persistent_loop():
     except Exception as e:
         log_event(f"Erreur fatale de la boucle principale : {e}")
         write_status("erreur", detail="La boucle principale s'est arrêtée")
+
 
 if __name__ == "__main__":
     import argparse
