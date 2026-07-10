@@ -1,33 +1,34 @@
 import { invoke } from "@tauri-apps/api/core";
-
-// --- Gestion du formulaire par défaut de Tauri ---
-let greetInputEl: HTMLInputElement | null;
-let greetMsgEl: HTMLElement | null;
-
-async function greet() {
-  if (greetMsgEl && greetInputEl) {
-    greetMsgEl.textContent = await invoke("greet", {
-      name: greetInputEl.value,
-    });
+console.log("[Sentinel] main.ts chargé, initialisation...");
+if (!("__TAURI_INTERNALS__" in window)) {
+  console.error("[Sentinel] Pas dans une fenêtre Tauri — invoke() ne fonctionnera pas ici.");
+}
+const panicBtn = document.getElementById("panic-btn") as HTMLButtonElement | null;
+const statusBadge = document.getElementById("status-badge") as HTMLElement | null;
+const statusLabel = document.getElementById("status-label") as HTMLElement | null;
+const logList = document.getElementById("log-list") as HTMLElement | null;
+if (!panicBtn) console.error("[Sentinel] Élément #panic-btn introuvable dans le DOM.");
+function addLogLine(text: string) {
+  console.log(`[Sentinel] ${text}`);
+  if (logList) {
+    const line = document.createElement("div");
+    line.className = "log-line";
+    line.textContent = `${new Date().toLocaleTimeString()} — ${text}`;
+    logList.prepend(line);
   }
 }
-
-window.addEventListener("DOMContentLoaded", () => {
-  greetInputEl = document.querySelector("#greet-input");
-  greetMsgEl = document.querySelector("#greet-msg");
-  document.querySelector("#greet-form")?.addEventListener("submit", (e) => {
-    e.preventDefault();
-    greet();
-  });
-
-  // --- Ton nouveau bouton de test Python ---
-  document.getElementById("test-btn")?.addEventListener("click", async () => {
-    try {
-      const result = await invoke<string>("call_python", { message: "Hello Python" });
-      const respEl = document.getElementById("response");
-      if (respEl) respEl.textContent = result;
-    } catch (error) {
-      console.error("Erreur Python:", error);
-    }
-  });
-});
+async function triggerPanic() {
+  console.log("[Sentinel] Clic sur panic-btn -> invoke('trigger_panic')");
+  try {
+    const rawResponse = await invoke<string>("trigger_panic");
+    console.log("[Sentinel] Réponse brute du backend Python :", rawResponse);
+    addLogLine(`Bouton panique confirmé : ${rawResponse}`);
+    if (statusBadge) statusBadge.dataset.phase = "pause";
+    if (statusLabel) statusLabel.textContent = "En pause";
+  } catch (error) {
+    console.error("[Sentinel] Erreur trigger_panic :", error);
+    addLogLine(`Erreur : ${error}`);
+  }
+}
+panicBtn?.addEventListener("click", triggerPanic);
+console.log("[Sentinel] Initialisation terminée.");

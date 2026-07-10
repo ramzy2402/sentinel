@@ -1,45 +1,38 @@
 <!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="stylesheet" href="/src/styles.css" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tauri App</title>
-    <script type="module" src="/src/main.ts" defer></script>
-  </head>
-
-  <body>
-    <button id="test-btn">Tester Python</button>
-<p id="response"></p>
-    <main class="container">
-      <h1>Welcome to Tauri</h1>
-
-      <div class="row">
-        <a href="https://vite.dev" target="_blank">
-          <img src="/src/assets/vite.svg" class="logo vite" alt="Vite logo" />
-        </a>
-        <a href="https://tauri.app" target="_blank">
-          <img
-            src="/src/assets/tauri.svg"
-            class="logo tauri"
-            alt="Tauri logo"
-          />
-        </a>
-        <a href="https://www.typescriptlang.org/docs" target="_blank">
-          <img
-            src="/src/assets/typescript.svg"
-            class="logo typescript"
-            alt="typescript logo"
-          />
-        </a>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sentinel</title>
+  <link rel="stylesheet" href="/src/styles.css" />
+  <script type="module" src="/src/main.ts"></script>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-dot"></span>
+        <h1>Sentinel</h1>
       </div>
-      <p>Click on the Tauri logo to learn more about the framework</p>
+      <div class="status-badge" id="status-badge" data-phase="veille">
+        <span class="status-dot"></span>
+        <span id="status-label">Veille</span>
+      </div>
+      <button id="config-btn" class="icon-btn" title="Configuration">⚙</button>
+    </header>
 
-      <form class="row" id="greet-form">
-        <input id="greet-input" placeholder="Enter a name..." />
-        <button type="submit">Greet</button>
-      </form>
-      <p id="greet-msg"></p>
+    <main class="content">
+      <section class="panel logs-panel">
+        <div class="panel-header">
+          <h2>Journal d'activité</h2>
+          <span class="panel-subtitle">Chiffré localement</span>
+        </div>
+        <div id="log-list" class="log-list"></div>
+      </section>
     </main>
-  </body>
+
+    <footer class="footer">
+      <button id="panic-btn" class="panic-btn">Bouton Panique (Ctrl+Shift+Échap)</button>
+    </footer>
+  </div>
+</body>
 </html>

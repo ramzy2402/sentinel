@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+declare module "react";
+import * as React from "react";
 
 export default function App() {
-  const [suggestion, setSuggestion] = useState<string | null>(null);
+  const [suggestion, setSuggestion] = React.useState<string | null>(null);
 
-  useEffect(() => {
+  React.useEffect(() => {
     const ws = new WebSocket("ws://127.0.0.1:8765/ws");
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
@@ -14,15 +15,16 @@ export default function App() {
     return () => ws.close();
   }, []);
 
-  return (
-    <div className="app">
-      {suggestion && (
-        <div className="suggestion-banner">
-          <p>{suggestion}</p>
-          <button>Automatiser</button>
-          <button>Ignorer</button>
-        </div>
-      )}
-    </div>
+  return React.createElement(
+    "div",
+    { className: "app" },
+    suggestion &&
+      React.createElement(
+        "div",
+        { className: "suggestion-banner" },
+        React.createElement("p", null, suggestion),
+        React.createElement("button", null, "Automatiser"),
+        React.createElement("button", null, "Ignorer")
+      )
   );
 }
