@@ -23,27 +23,19 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Build du sidecar Python
+      - - name: Build du sidecar Python
         shell: pwsh
         run: |
           cd backend
           python -m venv venv
           ./venv/Scripts/pip install -r requirements.txt
           ./venv/Scripts/pip install pyinstaller
+          # On repasse en --onefile, mais on ajoute --add-data pour inclure les DLLs si besoin
+          # Et surtout, on s'assure que PyInstaller voit bien tout l'environnement
+          ./venv/Scripts/pyinstaller --onefile --noconsole --name sentinel-backend --collect-all psutil --collect-all mss --collect-all imagehash main.py
           
-          # On garde --onedir
-          ./venv/Scripts/pyinstaller --onedir --noconsole --name sentinel-backend main.py
-          
-          # Création du dossier de destination
           New-Item -ItemType Directory -Force -Path ../src-tauri/binaries
-          
-          # Copie tout le contenu du dossier généré
-          Copy-Item -Recurse -Path dist/sentinel-backend/* -Destination "../src-tauri/binaries/"
-          
-          # IMPORTANT : On doit s'assurer que le fichier attendu par Tauri existe bien
-          # Si Tauri attend 'sentinel-backend-x86_64-pc-windows-msvc.exe', 
-          # on renomme l'exécutable généré pour qu'il corresponde exactement :
-          Rename-Item -Path "../src-tauri/binaries/sentinel-backend.exe" -NewName "sentinel-backend-x86_64-pc-windows-msvc.exe"
+          Copy-Item dist/sentinel-backend.exe "../src-tauri/binaries/sentinel-backend-x86_64-pc-windows-msvc.exe"
 
       - name: Installer les dépendances frontend
         run: npm install
