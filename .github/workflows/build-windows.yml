@@ -23,17 +23,14 @@ jobs:
         with:
           python-version: '3.11'
 
-      - - name: Build du sidecar Python
+      - name: Build du sidecar Python
         shell: pwsh
         run: |
           cd backend
           python -m venv venv
           ./venv/Scripts/pip install -r requirements.txt
           ./venv/Scripts/pip install pyinstaller
-          # On repasse en --onefile, mais on ajoute --add-data pour inclure les DLLs si besoin
-          # Et surtout, on s'assure que PyInstaller voit bien tout l'environnement
           ./venv/Scripts/pyinstaller --onefile --noconsole --name sentinel-backend --collect-all psutil --collect-all mss --collect-all imagehash main.py
-          
           New-Item -ItemType Directory -Force -Path ../src-tauri/binaries
           Copy-Item dist/sentinel-backend.exe "../src-tauri/binaries/sentinel-backend-x86_64-pc-windows-msvc.exe"
 
