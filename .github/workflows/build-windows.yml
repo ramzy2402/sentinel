@@ -30,10 +30,23 @@ jobs:
           python -m venv venv
           ./venv/Scripts/pip install -r requirements.txt
           ./venv/Scripts/pip install pyinstaller
-          ./venv/Scripts/pyinstaller --onefile --noconsole --name sentinel-backend --collect-all psutil --collect-all mss --collect-all imagehash main.py
+          
+          # Vérification de sécurité : confirme que psutil est bien installé dans ce venv précis
+          ./venv/Scripts/python -c "import psutil; print('psutil OK, version', psutil.__version__)"
+          
+          # Appel explicite via le python du venv pour éviter toute confusion sur le PATH
+          ./venv/Scripts/python -m PyInstaller --onefile --noconsole --name sentinel-backend `
+            --collect-all psutil --collect-all mss --collect-all imagehash main.py
+          
           New-Item -ItemType Directory -Force -Path ../src-tauri/binaries
           Copy-Item dist/sentinel-backend.exe "../src-tauri/binaries/sentinel-backend-x86_64-pc-windows-msvc.exe"
 
+      - name: Récupérer le rapport PyInstaller (debug)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pyinstaller-warnings
+          path: backend/build/sentinel-backend/warn-sentinel-backend.txt
       - name: Installer les dépendances frontend
         run: npm install
 
