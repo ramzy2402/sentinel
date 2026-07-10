@@ -30,7 +30,8 @@ jobs:
           python -m venv venv
           ./venv/Scripts/pip install -r requirements.txt
           ./venv/Scripts/pip install pyinstaller
-          ./venv/Scripts/pyinstaller --onefile --noconsole --name sentinel-backend main.py
+          # On ajoute --collect-all pour forcer l'inclusion des dépendances
+          ./venv/Scripts/pyinstaller --onefile --noconsole --name sentinel-backend --collect-all psutil --collect-all mss --collect-all imagehash main.py
           New-Item -ItemType Directory -Force -Path ../src-tauri/binaries
           Copy-Item dist/sentinel-backend.exe "../src-tauri/binaries/sentinel-backend-x86_64-pc-windows-msvc.exe"
 
