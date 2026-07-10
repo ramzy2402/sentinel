@@ -28,6 +28,11 @@
     "externalBin": [
       "binaries/sentinel-backend"
     ],
-    "icon": []
+    "icon": [],
+    "resources": [],
+    "copyright": "",
+    "category": "DeveloperTool",
+    "shortDescription": "",
+    "longDescription": ""
   }
 }
