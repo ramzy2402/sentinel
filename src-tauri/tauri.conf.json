@@ -23,10 +23,11 @@
     }
   },
   "bundle": {
-  "active": true,
-  "targets": "all",
-  "externalBin": [
-    "binaries/sentinel-backend"
-  ]
- }
+    "active": true,
+    "targets": "all",
+    "externalBin": [
+      "binaries/sentinel-backend"
+    ],
+    "icon": []
+  }
 }
